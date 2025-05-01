@@ -1,12 +1,20 @@
 'use client';
-import { createContext, useContext, useState } from 'react';
 
-const ChartThemeContext = createContext<any>(null);
+import { createContext, useContext, useState, ReactNode } from 'react';
 
-export const ChartThemeProvider = ({ children }: { children: React.ReactNode }) => {
+interface ChartThemeContextType {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+const ChartThemeContext = createContext<ChartThemeContextType | undefined>(undefined);
+
+export const ChartThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDark, setIsDark] = useState(false);
 
-  const toggleTheme = () => setIsDark((prev) => !prev);
+  const toggleTheme = () => {
+    setIsDark((prev) => !prev);
+  };
 
   return (
     <ChartThemeContext.Provider value={{ isDark, toggleTheme }}>
@@ -15,4 +23,10 @@ export const ChartThemeProvider = ({ children }: { children: React.ReactNode }) 
   );
 };
 
-export const useChartTheme = () => useContext(ChartThemeContext);
+export const useChartTheme = (): ChartThemeContextType => {
+  const context = useContext(ChartThemeContext);
+  if (context === undefined) {
+    throw new Error('useChartTheme must be used within a ChartThemeProvider');
+  }
+  return context;
+};
